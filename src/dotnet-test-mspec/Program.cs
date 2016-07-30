@@ -20,6 +20,9 @@ namespace Machine.Specifications.Runner.DotNet
             }
 
             string assemblyPath = commandLine.AssemblyFile;
+
+            Console.WriteLine("Loading:" + assemblyPath);
+
             string mspecPath = Path.Combine(Path.GetDirectoryName(assemblyPath),
                                             "Machine.Specifications.dll");
 
