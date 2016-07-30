@@ -27,7 +27,7 @@ namespace Machine.Specifications.Runner.DotNet
                                             "Machine.Specifications.dll");
 
             Assembly testAssembly = AssemblyHelper.Load(assemblyPath);
-            Assembly mspecAssembly = LoadMspecAssembly(testAssembly);
+            Assembly mspecAssembly = LoadMspecAssembly();
 
             ConsoleOutputRunListener runListener = new ConsoleOutputRunListener();
             ISpecificationRunListener allListeneres = new AggregateRunListener(new ISpecificationRunListener[] {
@@ -43,17 +43,13 @@ namespace Machine.Specifications.Runner.DotNet
                 testController.RunAssemblies(new[] { testAssembly });
 
                 if (runListener.FailureOccurred)
-                                Environment.Exit(-1);
+                    Environment.Exit(-1);
             }
         }
 
-        private static Assembly LoadMspecAssembly(Assembly testAssembly)
+        private static Assembly LoadMspecAssembly()
         {
-            AssemblyName mspecAssemblyName = testAssembly.GetReferencedAssemblies()
-                        .FirstOrDefault(a => "Machine.Specifications".Equals(a.Name));
-
-            return AssemblyHelper.Load(mspecAssemblyName);
-
+            return AssemblyHelper.Load(new AssemblyName("Machine.Specifications"));
         }
     }
 }
