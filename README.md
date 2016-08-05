@@ -25,7 +25,7 @@ The only action that you need to take is to install the `dotnet-test-mspec` NuGe
   "testRunner": "mspec",
   "dependencies": {
         "Machine.Specifications": "0.*",
-        "Machine.Specifications": "0.*",
+        "Machine.Specifications.Should": "0.*",
         "dotnet-test-mspec": {
             "version": "*",
             "type": "build"
