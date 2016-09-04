@@ -22,47 +22,63 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
                     continue;
                 }
                 
-                if( testClassAndAssertion.Length > 0 ) 
+                if( testClassAndAssertion.Length > 0 )
                 {
-                    Type testClass = null;
-                    foreach( var assembly in assemblies ) 
+                    var testClassString = testClassAndAssertion[0];
+                    var testClass = GetTestClassFromString(assemblies, testClassString);
+                    if (testClass == null)
                     {
-                        testClass = assembly.GetType(testClassAndAssertion[0]);
-                        if( testClass != null ) break;
-                    }
-                    
-                    if( testClass == null ) {
                         Console.WriteLine($"Could not resolve test class {testClassAndAssertion[0]}");
                         break;
                     }
 
-                    var testClassAssembly = testClass.GetTypeInfo().Assembly;
-                    List<MemberInfo> members;
-                    if( testPerAssemblies.ContainsKey(testClassAssembly)) members = testPerAssemblies[testClassAssembly];
-                    else 
-                    {
-                        members = new List<MemberInfo>();
-                        testPerAssemblies[testClassAssembly] = members;
-                    }
+                    var members = GetOrCreateMembersForTestClass(testPerAssemblies, testClass);
 
-                    var assertions = testClass.GetTypeInfo().GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public).Where(f=>f.FieldType.Name == "It");
-                    if( testClassAndAssertion.Length == 1 ) 
+                    var assertions = testClass.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => f.FieldType.Name == "It");
+                    if (testClassAndAssertion.Length == 1)
                     {
                         members.AddRange(assertions);
-                    } else 
+                    }
+                    else
                     {
-                        var assertionToAdd = assertions.SingleOrDefault(a=>a.Name == testClassAndAssertion[1]);
-                        if( assertionToAdd == null ) 
+                        var assertionToAdd = assertions.SingleOrDefault(a => a.Name == testClassAndAssertion[1]);
+                        if (assertionToAdd == null)
                         {
                             Console.WriteLine($"Couldn't locate assertion called {testClassAndAssertion[1]} in {testClassAndAssertion[0]}");
                             continue;
                         }
                         members.Add(assertionToAdd);
                     }
-                } 
+                }
             }
 
             return testPerAssemblies.Select(t => new AssertionsForAssembly(t.Key, t.Value));
+        }
+
+        static List<MemberInfo> GetOrCreateMembersForTestClass(Dictionary<Assembly, List<MemberInfo>> testPerAssemblies, Type testClass)
+        {
+            var testClassAssembly = testClass.GetTypeInfo().Assembly;
+            List<MemberInfo> members;
+            if (testPerAssemblies.ContainsKey(testClassAssembly)) members = testPerAssemblies[testClassAssembly];
+            else
+            {
+                members = new List<MemberInfo>();
+                testPerAssemblies[testClassAssembly] = members;
+            }
+
+            return members;
+        }
+
+        static Type GetTestClassFromString(IEnumerable<Assembly> assemblies, string testClassString)
+        {
+            Type testClass = null;
+            foreach( var assembly in assemblies ) 
+            {
+                testClass = assembly.GetType(testClassString);
+                if( testClass != null ) break;
+            }
+
+            return testClass;
         }
     }
 }
