@@ -16,6 +16,8 @@ namespace Machine.Specifications.Runner.DotNet.Controller
         private const string CONTROLLER_TYPE = "Machine.Specifications.Controller.Controller";
         private const string START_RUN_METHOD = "StartRun";
         private const string END_RUN_METHOD = "EndRun";
+        private const string RUN_MEMBERS_METHOD = "RunMembers";
+        private const string RUN_TYPES_METHOD = "RunTypes";
 
         private readonly ISpecificationRunListener _runListener;
         private readonly Assembly _frameworkAssembly;
@@ -63,6 +65,43 @@ namespace Machine.Specifications.Runner.DotNet.Controller
                 .GetMethod(END_RUN_METHOD)
                 .Invoke(_controller, null);
         }
+
+        public void RunMembers(Assembly assembly, IEnumerable<MemberInfo> members)
+        {
+            _controller
+                .GetType()
+                .GetMethod(START_RUN_METHOD)
+                .Invoke(_controller, null);
+
+            _controller
+                .GetType()
+                .GetMethod(RUN_MEMBERS_METHOD)
+                .Invoke(_controller, new object[] { assembly, members });
+
+            _controller
+                .GetType()
+                .GetMethod(END_RUN_METHOD)
+                .Invoke(_controller, null);
+        }
+
+        public void RunTypes(Assembly assembly, IEnumerable<Type> types)
+        {
+            _controller
+                .GetType()
+                .GetMethod(START_RUN_METHOD)
+                .Invoke(_controller, null);
+
+            _controller
+                .GetType()
+                .GetMethod(RUN_TYPES_METHOD)
+                .Invoke(_controller, new object[] { assembly, types });
+
+            _controller
+                .GetType()
+                .GetMethod(END_RUN_METHOD)
+                .Invoke(_controller, null);
+        }
+        
 
         // Temporary - just to show how to get the xml out
         public string DiscoverTestsRaw(Assembly assembly)
@@ -112,8 +151,6 @@ namespace Machine.Specifications.Runner.DotNet.Controller
                         break;
                 }
             }
-
         }
-
     }
 }

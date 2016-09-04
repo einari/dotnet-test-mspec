@@ -41,7 +41,13 @@ namespace Machine.Specifications.Runner.DotNet
             if (commandLine.List) {
                 Console.WriteLine(testController.DiscoverTestsRaw(testAssembly));
             } else {
-                testController.RunAssemblies(new[] { testAssembly });
+                var assembliesToRun = new[] { testAssembly };
+
+                if( commandLine.HasSpecificTestsToRun ) 
+                    SpecificTestsHelper
+                        .GetTestsToRunPerAssemblyFromTestStrings(assembliesToRun, commandLine.Tests)
+                            .Each(t=>testController.RunMembers(t.Assembly, t.Members));
+                else testController.RunAssemblies(assembliesToRun);
 
                 if (runListener.FailureOccurred)
                     Environment.Exit(-1);

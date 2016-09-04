@@ -24,6 +24,12 @@ namespace Machine.Specifications.Runner.DotNet
 
         public string ConfigFile { get; set; }
 
+        public string[] Tests { get; set; }
+
+        public string[] Filters { get; set; }
+
+        public bool HasSpecificTestsToRun { get { return Tests != null && Tests.Length > 0; } }
+
 
         public static CommandLine Parse(string[] args)
         {
@@ -99,6 +105,20 @@ namespace Machine.Specifications.Runner.DotNet
                     GuardNoOptionValue(option);
                     WaitCommand = true;
                 }
+                else if (optionName == "-filters" || optionName == "--filters")
+                {
+                    GuardNoOptionValue(option);
+                }
+                else if (optionName == "-test" || optionName == "--test")
+                {
+                    GuardNoOptionValue(option);
+
+                    Tests = option.Value.Split(',');
+
+                    // Format
+                    // {Full Type Name}#{Method Name}
+
+                }
             }
 
             if (WaitCommand && !Port.HasValue)
@@ -106,6 +126,9 @@ namespace Machine.Specifications.Runner.DotNet
                 throw new ArgumentException("when specifing --wait-command you must also pass a port using --port");
             }
         }
+
+
+         
 
         private static KeyValuePair<string, string> PopOption(Stack<string> arguments)
         {
