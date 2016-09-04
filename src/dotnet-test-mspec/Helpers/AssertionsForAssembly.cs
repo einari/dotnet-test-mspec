@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Machine.Specifications.Runner.DotNet.Helpers
 {
-    public class TestsPerAssembly 
+    public class AssertionsForAssembly 
     {
-        public TestsPerAssembly(Assembly assembly, IEnumerable<MemberInfo> members)
+        public AssertionsForAssembly(Assembly assembly, IEnumerable<MemberInfo> members)
         {
             Assembly = assembly;
             Members = members;

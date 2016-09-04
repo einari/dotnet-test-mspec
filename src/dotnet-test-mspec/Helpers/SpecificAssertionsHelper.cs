@@ -5,30 +5,34 @@ using System.Reflection;
 
 namespace Machine.Specifications.Runner.DotNet.Helpers
 {
-    public class SpecificTestsHelper
+    public class SpecificAssertionsHelper
     {
-        public static IEnumerable<TestsPerAssembly> GetTestsToRunPerAssemblyFromTestStrings(IEnumerable<Assembly> assemblies, string[] testStrings)
+        public static IEnumerable<AssertionsForAssembly> GetAssertionsToRunPerAssemblyFromTestStrings(IEnumerable<Assembly> assemblies, string[] testStrings)
         {
             var types = new List<Type>();
-            assemblies.Each(a => types.AddRange(a.GetTypes()));
 
             var testPerAssemblies = new Dictionary<Assembly, List<MemberInfo>>(); 
 
             foreach( var testString in testStrings )
             {
-                var testClassAndMethod = testString.Split('#');
-                if( testClassAndMethod.Length > 2 ) 
+                var testClassAndAssertion = testString.Split('#');
+                if( testClassAndAssertion.Length > 2 ) 
                 {
                     Console.WriteLine($"Format is wrong for '{testString}' - it should be a fully qualified namespace + name of class and optional #<assertion>");
                     continue;
                 }
                 
-                if( testClassAndMethod.Length > 0 ) 
+                if( testClassAndAssertion.Length > 0 ) 
                 {
-                    var testClass = types.SingleOrDefault(t=>$"{t.Namespace}.{t.Name}" == testClassAndMethod[0]);
+                    Type testClass = null;
+                    foreach( var assembly in assemblies ) 
+                    {
+                        testClass = assembly.GetType(testClassAndAssertion[0]);
+                        if( testClass != null ) break;
+                    }
                     
                     if( testClass == null ) {
-                        Console.WriteLine($"Could not resolve test class {testClassAndMethod[0]}");
+                        Console.WriteLine($"Could not resolve test class {testClassAndAssertion[0]}");
                         break;
                     }
 
@@ -42,15 +46,15 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
                     }
 
                     var assertions = testClass.GetTypeInfo().GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public).Where(f=>f.FieldType.Name == "It");
-                    if( testClassAndMethod.Length == 1 ) 
+                    if( testClassAndAssertion.Length == 1 ) 
                     {
                         members.AddRange(assertions);
                     } else 
                     {
-                        var assertionToAdd = assertions.SingleOrDefault(a=>a.Name == testClassAndMethod[1]);
+                        var assertionToAdd = assertions.SingleOrDefault(a=>a.Name == testClassAndAssertion[1]);
                         if( assertionToAdd == null ) 
                         {
-                            Console.WriteLine($"Couldn't locate assertion called {testClassAndMethod[1]} in {testClassAndMethod[0]}");
+                            Console.WriteLine($"Couldn't locate assertion called {testClassAndAssertion[1]} in {testClassAndAssertion[0]}");
                             continue;
                         }
                         members.Add(assertionToAdd);
@@ -58,7 +62,7 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
                 } 
             }
 
-            return testPerAssemblies.Select(t => new TestsPerAssembly(t.Key, t.Value));
+            return testPerAssemblies.Select(t => new AssertionsForAssembly(t.Key, t.Value));
         }
     }
 }

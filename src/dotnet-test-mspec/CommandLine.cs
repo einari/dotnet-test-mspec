@@ -72,8 +72,12 @@ namespace Machine.Specifications.Runner.DotNet
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for --test");
 
-                    // TODO
-                    throw new NotImplementedException();
+                    Console.WriteLine("TEST : "+option.Value);
+
+                    Tests = option.Value.Split(',');
+
+                    // Format
+                    // {Full Type Name}#{Method Name}
                 }
                 else if (optionName == "-list" || optionName == "--list")
                 {
@@ -108,16 +112,6 @@ namespace Machine.Specifications.Runner.DotNet
                 else if (optionName == "-filters" || optionName == "--filters")
                 {
                     GuardNoOptionValue(option);
-                }
-                else if (optionName == "-test" || optionName == "--test")
-                {
-                    GuardNoOptionValue(option);
-
-                    Tests = option.Value.Split(',');
-
-                    // Format
-                    // {Full Type Name}#{Method Name}
-
                 }
             }
 
