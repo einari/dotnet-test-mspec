@@ -10,49 +10,62 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
         public static IEnumerable<AssertionsForAssembly> GetAssertionsToRunPerAssemblyFromTestStrings(IEnumerable<Assembly> assemblies, string[] testStrings)
         {
             var types = new List<Type>();
+            var testPerAssemblies = new Dictionary<Assembly, List<MemberInfo>>();
 
-            var testPerAssemblies = new Dictionary<Assembly, List<MemberInfo>>(); 
-
-            foreach( var testString in testStrings )
+            foreach (var testString in testStrings)
             {
-                var testClassAndAssertion = testString.Split('#');
-                if( testClassAndAssertion.Length > 2 ) 
+                try
                 {
-                    Console.WriteLine($"Format is wrong for '{testString}' - it should be a fully qualified namespace + name of class and optional #<assertion>");
-                    continue;
+                    var testClassAndAssertion = testString.Split('#');
+                    ThrowIfFormatIsWrong(testString, testClassAndAssertion);
+                    if (testClassAndAssertion.Length > 0)
+                    {
+                        var testClassString = testClassAndAssertion[0];
+                        var assertionNameString = testClassAndAssertion[1];
+
+                        var testClass = GetTestClassFromString(assemblies, testClassString);
+                        ThrowIfTestClassIsNull(testClass, testClassString);
+
+                        var members = GetOrCreateMembersForTestClass(testPerAssemblies, testClass);
+                        var assertions = GetAllAssertionsFor(testClass);
+                        if (testClassAndAssertion.Length == 1) members.AddRange(assertions);
+                        else members.Add(GetSpecificAssertion(assertions, testClassString, assertionNameString));
+                    }
                 }
-                
-                if( testClassAndAssertion.Length > 0 )
+                catch (ArgumentException ex) 
                 {
-                    var testClassString = testClassAndAssertion[0];
-                    var testClass = GetTestClassFromString(assemblies, testClassString);
-                    if (testClass == null)
-                    {
-                        Console.WriteLine($"Could not resolve test class {testClassAndAssertion[0]}");
-                        break;
-                    }
-
-                    var members = GetOrCreateMembersForTestClass(testPerAssemblies, testClass);
-
-                    var assertions = testClass.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => f.FieldType.Name == "It");
-                    if (testClassAndAssertion.Length == 1)
-                    {
-                        members.AddRange(assertions);
-                    }
-                    else
-                    {
-                        var assertionToAdd = assertions.SingleOrDefault(a => a.Name == testClassAndAssertion[1]);
-                        if (assertionToAdd == null)
-                        {
-                            Console.WriteLine($"Couldn't locate assertion called {testClassAndAssertion[1]} in {testClassAndAssertion[0]}");
-                            continue;
-                        }
-                        members.Add(assertionToAdd);
-                    }
+                    Console.WriteLine(ex.Message);
                 }
             }
 
             return testPerAssemblies.Select(t => new AssertionsForAssembly(t.Key, t.Value));
+        }
+
+        static void ThrowIfFormatIsWrong(string testString, string[] testClassAndAssertion)
+        {
+            if (testClassAndAssertion.Length > 2)
+                throw new ArgumentException($"Format is wrong for '{testString}' - it should be a fully qualified namespace + name of class and optional #<assertion>");
+        }
+
+        static void ThrowIfTestClassIsNull(Type testClass, string testClassString)
+        {
+            if (testClass == null)
+                throw new ArgumentException($"Could not resolve test class {testClassString}");
+        }
+
+        static IEnumerable<FieldInfo> GetAllAssertionsFor(Type testClass)
+        {
+            return testClass.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => f.FieldType.Name == "It");
+        }
+
+
+        static MemberInfo GetSpecificAssertion(IEnumerable<MemberInfo> assertions, string testClassString, string assertionNameString)
+        {
+            var assertionToAdd = assertions.SingleOrDefault(a => a.Name == assertionNameString);
+            if (assertionToAdd == null)
+                throw new ArgumentException($"Couldn't locate assertion called {testClassString} in {assertionNameString}");
+
+            return assertionToAdd;
         }
 
         static List<MemberInfo> GetOrCreateMembersForTestClass(Dictionary<Assembly, List<MemberInfo>> testPerAssemblies, Type testClass)
@@ -72,10 +85,10 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
         static Type GetTestClassFromString(IEnumerable<Assembly> assemblies, string testClassString)
         {
             Type testClass = null;
-            foreach( var assembly in assemblies ) 
+            foreach (var assembly in assemblies)
             {
                 testClass = assembly.GetType(testClassString);
-                if( testClass != null ) break;
+                if (testClass != null) break;
             }
 
             return testClass;

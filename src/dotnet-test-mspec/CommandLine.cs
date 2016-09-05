@@ -70,14 +70,9 @@ namespace Machine.Specifications.Runner.DotNet
                 if (optionName == "-test" || optionName == "--test")
                 {
                     if (option.Value == null)
-                        throw new ArgumentException("missing argument for --test");
-
-                    Console.WriteLine("TEST : "+option.Value);
+                        throw new ArgumentException("missing argument for --test. Format is a fully qualified namespace + name of class and optionally #<assertion>. e.g. My.deep.namespace.MyClass#my_assertion");
 
                     Tests = option.Value.Split(',');
-
-                    // Format
-                    // {Full Type Name}#{Method Name}
                 }
                 else if (optionName == "-list" || optionName == "--list")
                 {
@@ -120,9 +115,6 @@ namespace Machine.Specifications.Runner.DotNet
                 throw new ArgumentException("when specifing --wait-command you must also pass a port using --port");
             }
         }
-
-
-         
 
         private static KeyValuePair<string, string> PopOption(Stack<string> arguments)
         {

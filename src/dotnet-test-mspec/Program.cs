@@ -41,7 +41,7 @@ namespace Machine.Specifications.Runner.DotNet
                 Console.WriteLine(testController.DiscoverTestsRaw(testAssembly));
             } else {
                 var assembliesToRun = new[] { testAssembly };
-                if( commandLine.HasSpecificTestsToRun ) 
+                if( commandLine.HasSpecificTestsToRun )
                     SpecificAssertionsHelper
                         .GetAssertionsToRunPerAssemblyFromTestStrings(assembliesToRun, commandLine.Tests)
                             .Each(t=>testController.RunMembers(t.Assembly, t.Members));
