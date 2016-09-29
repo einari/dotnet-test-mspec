@@ -26,7 +26,6 @@ namespace Machine.Specifications.Runner.DotNet
 
         public string[] Tests { get; set; }
 
-        public string[] Filters { get; set; }
 
         public bool HasSpecificTestsToRun { get { return Tests != null && Tests.Length > 0; } }
 
@@ -103,10 +102,6 @@ namespace Machine.Specifications.Runner.DotNet
                 {
                     GuardNoOptionValue(option);
                     WaitCommand = true;
-                }
-                else if (optionName == "-filters" || optionName == "--filters")
-                {
-                    GuardNoOptionValue(option);
                 }
             }
 
