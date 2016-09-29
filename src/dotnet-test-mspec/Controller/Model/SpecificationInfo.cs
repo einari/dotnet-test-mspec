@@ -25,16 +25,22 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
         public static SpecificationInfo Parse(string specificationInfoXml)
         {
             var document = XDocument.Parse(specificationInfoXml);
-            var leader = document.SafeGet<string>("/specificationinfo/leader");
-            var name = document.SafeGet<string>("/specificationinfo/name");
-            var containingType = document.SafeGet<string>("/specificationinfo/containingtype");
-            var fieldName = document.SafeGet<string>("/specificationinfo/fieldname");
-            var capturedOutput = document.SafeGet<string>("/specificationinfo/capturedoutput");
+            return GetFrom(document);
+        }
+
+        public static SpecificationInfo GetFrom(XContainer element)
+        {
+            var leader = element.SafeGet<string>("/specificationinfo/leader");
+            var name = element.SafeGet<string>("/specificationinfo/name");
+            var containingType = element.SafeGet<string>("/specificationinfo/containingtype");
+            var fieldName = element.SafeGet<string>("/specificationinfo/fieldname");
+            var capturedOutput = element.SafeGet<string>("/specificationinfo/capturedoutput");
 
             return new SpecificationInfo(leader, name, containingType, fieldName)
                        {
                            CapturedOutput = capturedOutput,
                        };
+
         }
     }
 }

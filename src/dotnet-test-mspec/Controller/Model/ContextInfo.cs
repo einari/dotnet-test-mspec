@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Machine.Specifications.Runner.DotNet.Controller.Model
 {
@@ -10,6 +13,8 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
         public string TypeName { get; private set; }
         public string Namespace { get; private set; }
         public string AssemblyName { get; private set; }
+
+        public IEnumerable<SpecificationInfo> Specifications {get; private set; }  
 
         public string FullName
         {
@@ -76,19 +81,28 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
             }
         }
 
+
         public static ContextInfo Parse(string contextInfoXml)
         {
             var document = XDocument.Parse(contextInfoXml);
-            var name = document.SafeGet<string>("/contextinfo/name");
-            var concern = document.SafeGet<string>("/contextinfo/concern");
-            var typeName = document.SafeGet<string>("/contextinfo/typename");
-            var @namespace = document.SafeGet<string>("/contextinfo/namespace");
-            var assemblyName = document.SafeGet<string>("/contextinfo/assemblyname");
-            var capturedoutput = document.SafeGet<string>("/contextinfo/capturedoutput");
+            return GetFrom(document);
+        }
+
+        public static ContextInfo GetFrom(XContainer element)
+        {
+            var name = element.SafeGet<string>("/contextinfo/name");
+            var concern = element.SafeGet<string>("/contextinfo/concern");
+            var typeName = element.SafeGet<string>("/contextinfo/typename");
+            var @namespace = element.SafeGet<string>("/contextinfo/namespace");
+            var assemblyName = element.SafeGet<string>("/contextinfo/assemblyname");
+            var capturedoutput = element.SafeGet<string>("/contextinfo/capturedoutput");
+
+            var specificationsElements = element.XPathSelectElements("/contextinfo/specifications/specificationinfo");
 
             return new ContextInfo(name, concern, typeName, @namespace, assemblyName)
                        {
                            CapturedOutput = capturedoutput,
+                           Specifications = specificationsElements.Select(e=>SpecificationInfo.GetFrom(e)) 
                        };
         }
     }

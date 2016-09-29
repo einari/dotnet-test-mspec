@@ -7,7 +7,7 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
 {
     internal static class XDocumentExtensions
     {
-        public static T SafeGet<T>(this XDocument element, string xpath)
+        public static T SafeGet<T>(this XContainer element, string xpath)
         {
             var selected = element.XPathSelectElement(xpath);
             if (selected != null && !selected.IsEmpty)
