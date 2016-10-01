@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Machine.Specifications.Runner.DotNet.Helpers;
 
 namespace Machine.Specifications.Runner.DotNet.Controller.Model
 {
@@ -85,19 +86,20 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
         public static ContextInfo Parse(string contextInfoXml)
         {
             var document = XDocument.Parse(contextInfoXml);
-            return GetFrom(document);
+            var contextInfoElement = document.XPathSelectElement("/contextinfo");
+            return GetFrom(contextInfoElement);
         }
 
-        public static ContextInfo GetFrom(XContainer element)
+        public static ContextInfo GetFrom(XElement element)
         {
-            var name = element.SafeGet<string>("/contextinfo/name");
-            var concern = element.SafeGet<string>("/contextinfo/concern");
-            var typeName = element.SafeGet<string>("/contextinfo/typename");
-            var @namespace = element.SafeGet<string>("/contextinfo/namespace");
-            var assemblyName = element.SafeGet<string>("/contextinfo/assemblyname");
-            var capturedoutput = element.SafeGet<string>("/contextinfo/capturedoutput");
+            var name = element.SafeGet<string>("./name");
+            var concern = element.SafeGet<string>("./concern");
+            var typeName = element.SafeGet<string>("./typename");
+            var @namespace = element.SafeGet<string>("./namespace");
+            var assemblyName = element.SafeGet<string>("./assemblyname");
+            var capturedoutput = element.SafeGet<string>("./capturedoutput");
 
-            var specificationsElements = element.XPathSelectElements("/contextinfo/specifications/specificationinfo");
+            var specificationsElements = element.XPathSelectElements("./specifications/specificationinfo");
 
             return new ContextInfo(name, concern, typeName, @namespace, assemblyName)
                        {

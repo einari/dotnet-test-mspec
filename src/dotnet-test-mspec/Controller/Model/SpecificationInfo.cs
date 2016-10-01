@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Machine.Specifications.Runner.DotNet.Controller.Model
 {
@@ -25,16 +26,17 @@ namespace Machine.Specifications.Runner.DotNet.Controller.Model
         public static SpecificationInfo Parse(string specificationInfoXml)
         {
             var document = XDocument.Parse(specificationInfoXml);
-            return GetFrom(document);
+            var specificationInfoElement = document.XPathSelectElement("/specificationinfo");
+            return GetFrom(specificationInfoElement);
         }
 
-        public static SpecificationInfo GetFrom(XContainer element)
+        public static SpecificationInfo GetFrom(XElement element)
         {
-            var leader = element.SafeGet<string>("/specificationinfo/leader");
-            var name = element.SafeGet<string>("/specificationinfo/name");
-            var containingType = element.SafeGet<string>("/specificationinfo/containingtype");
-            var fieldName = element.SafeGet<string>("/specificationinfo/fieldname");
-            var capturedOutput = element.SafeGet<string>("/specificationinfo/capturedoutput");
+            var leader = element.SafeGet<string>("./leader");
+            var name = element.SafeGet<string>("./name");
+            var containingType = element.SafeGet<string>("./containingtype");
+            var fieldName = element.SafeGet<string>("./fieldname");
+            var capturedOutput = element.SafeGet<string>("./capturedoutput");
 
             return new SpecificationInfo(leader, name, containingType, fieldName)
                        {
