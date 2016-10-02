@@ -13,5 +13,6 @@ namespace Machine.Specifications.Runner.DotNet.Helpers
         
         public Assembly Assembly { get; private set; }
         public IEnumerable<MemberInfo> Members { get; private set; }
+
     }
 }

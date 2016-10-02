@@ -11,7 +11,7 @@ using Machine.Specifications.Runner.DotNet.Controller.Model;
 namespace Machine.Specifications.Runner.DotNet.Controller
 {
     // Used to implement version agnostic test runners
-    public class TestController
+    public class TestController : ITestController
     {
         private const string CONTROLLER_TYPE = "Machine.Specifications.Controller.Controller";
         private const string START_RUN_METHOD = "StartRun";
