@@ -1,7 +1,7 @@
 using System.Reflection;
 using Machine.Specifications.Runner.DotNet.Controller;
 
-namespace Machine.Specifications.Runner.DotNet
+namespace Machine.Specifications.Runner.DotNet.Execution
 {
     public class AssemblyRunner : ICanRunSpecifications
     {

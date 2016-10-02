@@ -1,4 +1,4 @@
-namespace Machine.Specifications.Runner.DotNet 
+namespace Machine.Specifications.Runner.DotNet.Execution 
 {
     public interface ICanRunSpecifications
     {
