@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -111,6 +112,22 @@ namespace Machine.Specifications.Runner.DotNet.Controller
                                 .GetMethod("DiscoverSpecs")
                                 .Invoke(_controller, new object[] { assembly });
         }
+
+        public IEnumerable<ContextInfo> GetAllContextsFor(IEnumerable<Assembly> assemblies)
+        {
+            var contexts = new List<ContextInfo>();
+
+            foreach( var assembly in assemblies )
+            {
+                var contextsAsString = DiscoverTestsRaw(assembly);
+                var contextsXml = XDocument.Parse(contextsAsString);
+                var contextsElements = contextsXml.XPathSelectElements("/contexts/contextinfo");
+                contexts.AddRange(contextsElements.Select(e=>ContextInfo.GetFrom(e)));
+            }
+
+            return contexts;
+        }
+        
 
         private void OnListenEvent(string value)
         {
