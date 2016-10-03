@@ -8,21 +8,21 @@ namespace Machine.Specifications.Runner.DotNet.Execution
     public class RunManager
     {
         ITestController _testController;
+        IRunBuilder _runBuilder;
 
-        public RunManager(ITestController testController)
+        public RunManager(ITestController testController, IRunBuilder runBuilder)
         {
             _testController = testController;
+            _runBuilder = runBuilder;
         }
 
         public void Run(CommandLine commandLine, IEnumerable<Assembly> assemblies)
         {
-            var contexts = _testController.GetAllContextsFor(assemblies);
+            System.Console.WriteLine("Running");
 
-            if( commandLine.HasSpecificTestsToRun )
-                SpecificAssertionsHelper
-                    .GetSpecificationsToRunPerAssemblyFromTestStrings(contexts, assemblies, commandLine.Tests)
-                        .Each(t=>_testController.RunMembers(t.Assembly, t.Members));
-            else _testController.RunAssemblies(assemblies);
+            var contexts = _testController.GetAllContextsFor(assemblies);
+            var runners = _runBuilder.BuildFrom(commandLine, assemblies, contexts);
+            runners.Each(r=>r.Run());
         }
     }
 }

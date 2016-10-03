@@ -41,7 +41,8 @@ namespace Machine.Specifications.Runner.DotNet
             if (commandLine.List) {
                 Console.WriteLine(testController.DiscoverTestsRaw(testAssembly));
             } else {
-                var runManager = new RunManager(testController);
+                var runBuilder = new RunBuilder(testController);
+                var runManager = new RunManager(testController, runBuilder);
                 var assembliesToRun = new[] { testAssembly };
                 runManager.Run(commandLine, assembliesToRun);
 

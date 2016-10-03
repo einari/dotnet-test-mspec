@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Machine.Specifications.Runner.DotNet.Controller;
 
@@ -6,17 +7,17 @@ namespace Machine.Specifications.Runner.DotNet.Execution
     public class AssemblyRunner : ICanRunSpecifications
     {
         ITestController _testController;
-        Assembly _assembly;
+        IEnumerable<Assembly> _assemblies;
 
-        public AssemblyRunner(ITestController testController, Assembly assembly)
+        public AssemblyRunner(ITestController testController, IEnumerable<Assembly> assemblies)
         {
             _testController = testController;
-            _assembly = assembly;
+            _assemblies = assemblies;
         }
 
         public void Run()
         {
-            _testController.RunAssemblies(new[] {_assembly});
+            _testController.RunAssemblies(_assemblies);
         }
     }
 }
