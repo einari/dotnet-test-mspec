@@ -20,7 +20,10 @@ namespace Machine.Specifications.Runner.DotNet.Execution
         {
             var contexts = _testController.GetAllContextsFor(assemblies);
             var runners = _runBuilder.BuildFrom(commandLine, assemblies, contexts);
-            runners.Each(r=>r.Run());
+            runners.Each(r=> {
+                System.Console.WriteLine("Run Type : "+r.GetType());
+                r.Run();
+            });
         }
     }
 }
